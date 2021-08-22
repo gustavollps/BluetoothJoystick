@@ -17,8 +17,8 @@
 
         <io.github.controlwear.virtual.joystick.android.JoystickView
             android:id="@+id/throttle_yaw"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             app:JV_backgroundColor="#666666"
             app:JV_borderColor="#DDDDDD"
             app:JV_borderWidth="4dp"
@@ -40,8 +40,8 @@
 
         <io.github.controlwear.virtual.joystick.android.JoystickView
             android:id="@+id/roll_pitch"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             app:JV_backgroundColor="#666666"
             app:JV_borderColor="#DDDDDD"
             app:JV_borderWidth="4dp"

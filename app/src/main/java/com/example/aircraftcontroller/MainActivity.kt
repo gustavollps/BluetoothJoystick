@@ -86,15 +86,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendJoystickData(){
-        val string: String = "${scale(joystickData.throttle,200f,1000f)}" +
-                "|${scale(joystickData.yaw,200f,1000f)}" +
-                "|${scale(joystickData.roll,200f,1000f)}" +
-                "|${scale(joystickData.pitch,200f,1000f)}\r\n"
+        val string: String =
+            "${scaleAndOffset(joystickData.throttle,200f,1000f)}"
+                .padStart(4,'0') +
+            "|${scaleAndOffset(joystickData.yaw,200f,1000f)}"
+                .padStart(4,'0') +
+            "|${scaleAndOffset(joystickData.roll,200f,1000f)}"
+                .padStart(4,'0') +
+            "|${scaleAndOffset(joystickData.pitch,200f,1000f)}"
+                .padStart(4,'0') +
+            "\r\n"
         deviceInterface?.sendMessage(string)
     }
 
-    private fun scale(value: Float, range: Float, new_range: Float): Int {
-        return (value * (new_range/range)).toInt()
+    private fun scaleAndOffset(value: Float, range: Float, new_range: Float): Int {
+        return (value * (new_range/range) + new_range/2).toInt()
     }
 
     @SuppressLint("CheckResult")
