@@ -14,6 +14,7 @@ import io.reactivex.schedulers.Schedulers
 
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
@@ -91,6 +92,9 @@ class MainActivity : AppCompatActivity() {
             Log.i(TAG, "RollPitch: ${joystickData.roll}, ${joystickData.pitch}")
             sendJoystickData()
         }
+
+        connect!!.setBackgroundColor(Color.LTGRAY)
+        send!!.setBackgroundColor(Color.LTGRAY)
     }
 
     private fun sendJoystickData() {
@@ -104,13 +108,32 @@ class MainActivity : AppCompatActivity() {
                     "${scaleAndOffset(joystickData.pitch, 200f, 1000f)}"
                         .padStart(4, '0') +
                     "?"
-        deviceInterface?.sendMessage(string)
+        try {
+            deviceInterface?.sendMessage(string)
+            Log.i(TAG, string)
+        }
+        catch (e: Exception){
+            Log.i(TAG,"Error sending. Reset connection!")
+            onError(Throwable())
+        }
     }
 
     private fun scaleAndOffset(value: Float, range: Float, new_range: Float): Int {
-        return (value * (new_range / range) + new_range / 2).toInt()
+        return constrain(
+            (value * (new_range / range) + new_range / 2)* 1200f,
+            0f,
+            1000f).toInt()
     }
 
+    fun constrain(value: Float, min:Float, max:Float): Float{
+        if(value < min){
+            return min
+        }
+        else if(value > max){
+            return max
+        }
+        return value
+    }
     @SuppressLint("CheckResult")
     private fun connectDevice(mac: String) {
         bluetoothManager!!.openSerialDevice(mac)
@@ -133,7 +156,7 @@ class MainActivity : AppCompatActivity() {
             { message: String -> onMessageSent(message) },
             { error: Throwable -> onError(error) }
         )
-
+        connect!!.setBackgroundColor(Color.GREEN)
         Toast.makeText(context, "Connected do $device", Toast.LENGTH_SHORT).show()
     }
 
@@ -147,8 +170,10 @@ class MainActivity : AppCompatActivity() {
     private fun onError(error: Throwable) {
         // Handle the error
         error.message?.let { Log.e(TAG, it) }
+        connect!!.setBackgroundColor(Color.RED)
         try {
             bluetoothManager?.close()
+            bluetoothManager = BluetoothManager.getInstance()
         }
         catch (e: Exception){}
     }
