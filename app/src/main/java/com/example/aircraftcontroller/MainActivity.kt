@@ -20,13 +20,21 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import io.github.controlwear.virtual.joystick.android.JoystickView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import java.lang.Exception
+import kotlin.concurrent.fixedRateTimer
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext = newSingleThreadContext("name")
+
     private var context: Context? = null
     private var bluetoothManager: BluetoothManager? = null
     private var deviceInterface: SimpleBluetoothDeviceInterface? = null
@@ -41,8 +49,16 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG = "BluetoothMain"
     private var connect: Button? = null
-    private var send: Button? = null
+    private var arm: Button? = null
+    private var disarm: Button? = null
     private var dataReceived: TextView? = null
+
+    private var arming: Boolean = false
+    private var disarming: Boolean = false
+    private var armingCounter: Int = 0
+    private val armingTime: Float = 2.5f
+    private val controllerPeriod: Long = 20
+
 
     private val device = "24:6F:28:25:04:22"
 
@@ -54,47 +70,78 @@ class MainActivity : AppCompatActivity() {
         context = this.applicationContext
         bluetoothManager = BluetoothManager.getInstance()
 
-        // Setup our BluetoothManager
         if (bluetoothManager == null) {
-            // Bluetooth unavailable on this device :( tell the user
             Toast.makeText(context, "Bluetooth not available.", Toast.LENGTH_LONG)
-                .show() // Replace context with your context instance.
+                .show()
             finish()
         }
 
         dataReceived = findViewById(R.id.receivedData)
 
         connect = findViewById(R.id.connect)
-        send = findViewById(R.id.send)
-
+        arm = findViewById(R.id.arm)
+        disarm = findViewById(R.id.disarm)
         connect?.setOnClickListener {
             connectDevice(device)
         }
-
-        send?.setOnClickListener {
-            deviceInterface!!.sendMessage("Hello world!")
+        arm?.setOnClickListener {
+            arming = true
+        }
+        disarm?.setOnClickListener {
+            arming = true
+            disarming = true
         }
 
         throttle_yaw = findViewById(R.id.throttle_yaw)
         throttle_yaw?.setOnMoveListener { angle, strength ->
-
-            joystickData.throttle = (sin(angle * (PI / 180f)) * strength).toFloat()
-            joystickData.yaw = (cos(angle * (PI / 180f)) * strength).toFloat()
-            Log.i(TAG, "ThrottleYaw: ${joystickData.throttle}, ${joystickData.yaw}")
-            Log.i(TAG, "$angle,$strength")
-            sendJoystickData()
+            if(!arming) {
+                joystickData.throttle = (sin(angle * (PI / 180f)) * strength).toFloat()
+                joystickData.yaw = (cos(angle * (PI / 180f)) * strength).toFloat()
+                Log.i(TAG, "ThrottleYaw: ${joystickData.throttle}, ${joystickData.yaw}")
+            }
         }
 
         roll_pitch = findViewById(R.id.roll_pitch)
         roll_pitch?.setOnMoveListener { angle, strength ->
-            joystickData.pitch = (sin(angle * (PI / 180f)) * strength).toFloat()
-            joystickData.roll = (cos(angle * (PI / 180f)) * strength).toFloat()
-            Log.i(TAG, "RollPitch: ${joystickData.roll}, ${joystickData.pitch}")
-            sendJoystickData()
+            if(!arming) {
+                joystickData.pitch = (sin(angle * (PI / 180f)) * strength).toFloat()
+                joystickData.roll = (cos(angle * (PI / 180f)) * strength).toFloat()
+                Log.i(TAG, "RollPitch: ${joystickData.roll}, ${joystickData.pitch}")
+            }
         }
 
         connect!!.setBackgroundColor(Color.LTGRAY)
-        send!!.setBackgroundColor(Color.LTGRAY)
+        arm!!.setBackgroundColor(Color.LTGRAY)
+        disarm!!.setBackgroundColor(Color.LTGRAY)
+
+        fixedRateTimer("ControlTimer", false, 0, controllerPeriod){
+            if(arming){
+                if(disarming){
+                    joystickData.throttle = -100f
+                    joystickData.yaw = -100f
+                }
+                else{
+                    joystickData.throttle = -100f
+                    joystickData.yaw = 100f
+                }
+
+                sendJoystickData()
+
+                if(armingCounter < armingTime * (1000/controllerPeriod)){
+                    armingCounter++
+                }
+                else{
+                    armingCounter = 0
+                    arming = false
+                    disarming = false
+                    joystickData.throttle = -100f
+                    joystickData.yaw = 0f
+                }
+            }
+            else{
+                sendJoystickData()
+            }
+        }
     }
 
     private fun sendJoystickData() {
@@ -110,7 +157,7 @@ class MainActivity : AppCompatActivity() {
                     "?"
         try {
             deviceInterface?.sendMessage(string)
-            Log.i(TAG, string)
+            Log.d(TAG, string)
         }
         catch (e: Exception){
             Log.i(TAG,"Error sending. Reset connection!")
@@ -119,8 +166,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scaleAndOffset(value: Float, range: Float, new_range: Float): Int {
+        val gain = 1.5f
+        val offset = new_range/2
         return constrain(
-            (value * (new_range / range) + new_range / 2)* 1200f,
+            (value * gain * (new_range / range) + offset),
             0f,
             1000f).toInt()
     }
