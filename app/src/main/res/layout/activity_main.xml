@@ -16,59 +16,112 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <io.github.controlwear.virtual.joystick.android.JoystickView
-            android:id="@+id/throttle_yaw"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+        <ProgressBar
+            android:id="@+id/throttle"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="33dp"
+            android:layout_height="298dp"
             android:layout_weight="0"
-            app:JV_backgroundColor="#666666"
-            app:JV_borderColor="#DDDDDD"
-            app:JV_borderWidth="4dp"
-            app:JV_buttonColor="#000000"
-            app:JV_buttonSizeRatio="25%"
-            app:JV_fixedCenter="false" />
+            android:rotation="-90"
+            android:scaleX="7" />
 
         <LinearLayout
-            android:layout_width="200dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:orientation="vertical">
+
+            <io.github.controlwear.virtual.joystick.android.JoystickView
+                android:id="@+id/throttle_yaw"
+                android:layout_width="265dp"
+                android:layout_height="265dp"
+                android:layout_weight="0"
+                app:JV_backgroundColor="#666666"
+                app:JV_borderColor="#DDDDDD"
+                app:JV_borderWidth="4dp"
+                app:JV_buttonColor="#000000"
+                app:JV_buttonSizeRatio="25%"
+                app:JV_fixedCenter="false" />
+
+            <ProgressBar
+                android:id="@+id/yaw"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/connect"
-                android:layout_width="match_parent"
+                android:layout_width="172dp"
                 android:layout_height="wrap_content"
                 android:text="Connect" />
 
             <Button
                 android:id="@+id/arm"
-                android:layout_width="match_parent"
+                android:layout_width="173dp"
                 android:layout_height="wrap_content"
                 android:text="Arm motors" />
 
             <Button
                 android:id="@+id/disarm"
-                android:layout_width="match_parent"
+                android:layout_width="172dp"
                 android:layout_height="wrap_content"
                 android:text="Disarm motors" />
 
+            <Button
+                android:id="@+id/flight_mode"
+                android:layout_width="173dp"
+                android:layout_height="wrap_content"
+                android:text="Flight Mode: LOITER" />
+
             <TextView
                 android:id="@+id/receivedData"
-                android:layout_width="match_parent"
+                android:layout_width="175dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
+
         </LinearLayout>
 
-        <io.github.controlwear.virtual.joystick.android.JoystickView
-            android:id="@+id/roll_pitch"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_weight="0"
-            app:JV_backgroundColor="#666666"
-            app:JV_borderColor="#DDDDDD"
-            app:JV_borderWidth="4dp"
-            app:JV_buttonColor="#000000"
-            app:JV_buttonSizeRatio="25%"
-            app:JV_fixedCenter="false" />
+            android:orientation="vertical">
+
+            <io.github.controlwear.virtual.joystick.android.JoystickView
+                android:id="@+id/roll_pitch"
+                android:layout_width="265dp"
+                android:layout_height="265dp"
+                android:layout_weight="0"
+                app:JV_backgroundColor="#666666"
+                app:JV_borderColor="#DDDDDD"
+                app:JV_borderWidth="4dp"
+                app:JV_buttonColor="#000000"
+                app:JV_buttonSizeRatio="25%"
+                app:JV_fixedCenter="false" />
+
+            <ProgressBar
+                android:id="@+id/roll"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:layout_weight="0" />
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pitch"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="33dp"
+            android:layout_height="298dp"
+            android:layout_weight="0"
+            android:rotation="-90"
+            android:scaleX="7" />
 
     </LinearLayout>
 
