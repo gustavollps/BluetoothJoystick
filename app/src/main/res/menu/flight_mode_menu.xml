@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/stabilize"
+        android:title="Stabilize"/>
+    <item
+        android:id="@+id/althold"
+        android:title="AltHold"/>
+    <item
+        android:id="@+id/acro"
+        android:title="Acro"/>
+    <item
+        android:id="@+id/loiter"
+        android:title="Loiter"/>
+</menu>

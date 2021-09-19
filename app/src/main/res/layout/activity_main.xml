@@ -55,6 +55,20 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <SeekBar
+                android:id="@+id/gain"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:progressBackgroundTint="#FF0000"
+                android:progressTint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/gainText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gain: 1.0"
+                android:textAlignment="center" />
+
             <Button
                 android:id="@+id/connect"
                 android:layout_width="172dp"
@@ -62,16 +76,10 @@
                 android:text="Connect" />
 
             <Button
-                android:id="@+id/arm"
-                android:layout_width="173dp"
+                android:id="@+id/controlMode"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Arm motors" />
-
-            <Button
-                android:id="@+id/disarm"
-                android:layout_width="172dp"
-                android:layout_height="wrap_content"
-                android:text="Disarm motors" />
+                android:text="Control Mode : 0" />
 
             <Button
                 android:id="@+id/flight_mode"
