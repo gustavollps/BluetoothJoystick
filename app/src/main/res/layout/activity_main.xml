@@ -8,129 +8,299 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/throttle"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="33dp"
-            android:layout_height="298dp"
-            android:layout_weight="0"
-            android:rotation="-90"
-            android:scaleX="7" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <io.github.controlwear.virtual.joystick.android.JoystickView
-                android:id="@+id/throttle_yaw"
-                android:layout_width="265dp"
-                android:layout_height="265dp"
-                android:layout_weight="0"
-                app:JV_backgroundColor="#666666"
-                app:JV_borderColor="#DDDDDD"
-                app:JV_borderWidth="4dp"
-                app:JV_buttonColor="#000000"
-                app:JV_buttonSizeRatio="25%"
-                app:JV_fixedCenter="false" />
-
-            <ProgressBar
-                android:id="@+id/yaw"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="24dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <SeekBar
-                android:id="@+id/gain"
-                android:layout_width="match_parent"
-                android:layout_height="28dp"
-                android:progressBackgroundTint="#FF0000"
-                android:progressTint="#FFFFFF" />
-
-            <TextView
-                android:id="@+id/gainText"
-                android:layout_width="match_parent"
+            <Space
+                android:layout_width="10dp"
                 android:layout_height="wrap_content"
-                android:text="Gain: 1.0"
-                android:textAlignment="center" />
-
-            <Button
-                android:id="@+id/connect"
-                android:layout_width="172dp"
-                android:layout_height="wrap_content"
-                android:text="Connect" />
-
-            <Button
-                android:id="@+id/controlMode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Control Mode : 0" />
-
-            <Button
-                android:id="@+id/flight_mode"
-                android:layout_width="173dp"
-                android:layout_height="wrap_content"
-                android:text="Flight Mode: LOITER" />
-
-            <TextView
-                android:id="@+id/receivedData"
-                android:layout_width="175dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0"
-            android:orientation="vertical">
-
-            <io.github.controlwear.virtual.joystick.android.JoystickView
-                android:id="@+id/roll_pitch"
-                android:layout_width="265dp"
-                android:layout_height="265dp"
-                android:layout_weight="0"
-                app:JV_backgroundColor="#666666"
-                app:JV_borderColor="#DDDDDD"
-                app:JV_borderWidth="4dp"
-                app:JV_buttonColor="#000000"
-                app:JV_buttonSizeRatio="25%"
-                app:JV_fixedCenter="false" />
-
-            <ProgressBar
-                android:id="@+id/roll"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
                 android:layout_weight="0" />
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        android:text="Signal quality: " />
+
+                    <TextView
+                        android:id="@+id/dataRadioQuality"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:gravity="end"
+                        android:text="0" />
+
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/radioQualityProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+            <Space
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:gravity="right"
+                        android:text="Reception frequency: " />
+
+                    <TextView
+                        android:id="@+id/dataRadioRate"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_weight="0"
+                        android:gravity="end"
+                        android:text="0" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/radioRateProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+            <Space
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="Last response: " />
+
+            <TextView
+                android:id="@+id/dataRadioLastResponse"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:gravity="end"
+                android:text="0.0" />
+
+            <Space
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+
+            <ToggleButton
+                android:id="@+id/ch7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:checked="false"
+                android:text="ch7"
+                android:textOff="CH7"
+                android:textOn="CH7" />
+
+            <ToggleButton
+                android:id="@+id/ch8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="ch8"
+                android:textOff="CH8"
+                android:textOn="CH8" />
+
+            <CheckBox
+                android:id="@+id/audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:checked="true"
+                android:text="Audio" />
+
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/pitch"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="33dp"
-            android:layout_height="298dp"
-            android:layout_weight="0"
-            android:rotation="-90"
-            android:scaleX="7" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
+            <LinearLayout
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/throttle"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:rotation="-90"
+                    android:scaleX="7" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:orientation="vertical">
+
+                <io.github.controlwear.virtual.joystick.android.JoystickView
+                    android:id="@+id/throttle_yaw"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:layout_weight="1"
+                    app:JV_backgroundColor="#666666"
+                    app:JV_borderColor="#DDDDDD"
+                    app:JV_borderWidth="4dp"
+                    app:JV_buttonColor="#000000"
+                    app:JV_buttonSizeRatio="25%"
+                    app:JV_fixedCenter="false" />
+
+                <ProgressBar
+                    android:id="@+id/yaw"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/flight_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="Flight Mode: LOITER" />
+
+                <Button
+                    android:id="@+id/controlMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="Control Mode : 0" />
+
+                <Button
+                    android:id="@+id/connect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="Connect" />
+
+                <Switch
+                    android:id="@+id/auto_reconnect"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:checked="true"
+                    android:text="Auto-reconnect" />
+
+                <TextView
+                    android:id="@+id/gainText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Gain: 1.0"
+                    android:textAlignment="center" />
+
+                <SeekBar
+                    android:id="@+id/gain"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:progressBackgroundTint="#FF0000"
+                    android:progressTint="#FFFFFF" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:orientation="vertical">
+
+                <io.github.controlwear.virtual.joystick.android.JoystickView
+                    android:id="@+id/roll_pitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:layout_weight="1"
+                    app:JV_backgroundColor="#666666"
+                    app:JV_borderColor="#DDDDDD"
+                    app:JV_borderWidth="4dp"
+                    app:JV_buttonColor="#000000"
+                    app:JV_buttonSizeRatio="25%"
+                    app:JV_fixedCenter="false" />
+
+                <ProgressBar
+                    android:id="@+id/roll"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/pitch"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:rotation="-90"
+                    android:scaleX="7" />
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

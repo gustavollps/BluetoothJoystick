@@ -36,11 +36,13 @@ import android.widget.*
 import com.google.android.material.slider.Slider
 
 
-data class FlightModes(var mode: Char){
-    val STABILIZE = 'S'
-    val ALTOHOLD = 'H'
-    val LOITER = 'L'
-    val ACRO = 'A'
+enum class FlightModes(var mode: Int){
+    STABILIZE(1),
+    ALTOHOLD(2),
+    LOITER(3),
+    ACRO(4),
+    LAND(5),
+    RTL(6)
 }
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -57,19 +59,26 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         0f,
         0f
     )
-    private val flightModes: FlightModes = FlightModes('S')
+    private val flightModes: FlightModes = FlightModes.STABILIZE
 
     private val TAG = "BluetoothMain"
 
     private var connect: Button? = null
     private var flightModeSelector: Button? = null
     private var controlModeSelector: Button? = null
+    private var ch7Button: ToggleButton? = null
+    private var ch8Button: ToggleButton? = null
+    private var audio: CheckBox? = null
 
     private var throttle: ProgressBar? = null
     private var yaw: ProgressBar? = null
     private var roll: ProgressBar? = null
     private var pitch: ProgressBar? = null
+    private var radioQualityProgress: ProgressBar? = null
+    private var radioRateProgress: ProgressBar? = null
     private var gainSlider: SeekBar? = null
+
+    private var autoReconnect: Switch? = null
 
     private var gain: Float = 1f
 
@@ -81,7 +90,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private val dpad = Dpad()
 
 
-    private var dataReceived: TextView? = null
+    private var dataRadioQuality: TextView? = null
+    private var dataRadioLastResponse: TextView? = null
+    private var dataRadioRate: TextView? = null
+
     private var gainText: TextView? = null
     private var connected = false
 
@@ -94,10 +106,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private val controllerPeriod: Long = 20
     private var controlMode: Int = 0
     private val numControlModes = 3
+    private var incomingBuffer: String = ""
 
 
 
-    private var flightMode: Char = flightModes.STABILIZE
+    private var flightMode: FlightModes = FlightModes.STABILIZE
 
     private var usingJoystick = false
 
@@ -114,13 +127,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             flightModeSelector?.text = "Flight Mode:\n$item"
             when(item.itemId){
                 R.id.stabilize ->
-                    flightMode = flightModes.STABILIZE
+                    flightMode = FlightModes.STABILIZE
                 R.id.acro ->
-                    flightMode = flightModes.ACRO
+                    flightMode = FlightModes.ACRO
                 R.id.loiter ->
-                    flightMode = flightModes.LOITER
+                    flightMode = FlightModes.LOITER
                 R.id.althold ->
-                    flightMode = flightModes.ALTOHOLD
+                    flightMode = FlightModes.ALTOHOLD
+                R.id.rtl ->
+                    flightMode = FlightModes.RTL
+                R.id.land ->
+                    flightMode = FlightModes.LAND
             }
             true
         }
@@ -129,6 +146,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportActionBar?.hide()
+        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -143,7 +164,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             finish()
         }
 
-        dataReceived = findViewById(R.id.receivedData)
+        dataRadioQuality = findViewById(R.id.dataRadioQuality)
+        dataRadioLastResponse = findViewById(R.id.dataRadioLastResponse)
+        dataRadioRate = findViewById(R.id.dataRadioRate)
+        radioRateProgress = findViewById(R.id.radioRateProgress)
+        radioQualityProgress = findViewById(R.id.radioQualityProgress)
+
+        autoReconnect = findViewById(R.id.auto_reconnect)
 
         connect = findViewById(R.id.connect)
         controlModeSelector = findViewById(R.id.controlMode)
@@ -175,6 +202,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         flightModeSelector = findViewById(R.id.flight_mode)
         flightModeSelector!!.text = "Flight mode:\nSTABILIZE"
+        ch7Button = findViewById(R.id.ch7)
+        ch8Button = findViewById(R.id.ch8)
+        audio = findViewById(R.id.audio)
 
         setupButtonClickers()
 
@@ -311,20 +341,28 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private fun changeFlightMode(){
         when (flightMode) {
-            flightModes.STABILIZE -> {
-                flightMode = flightModes.ALTOHOLD
+            FlightModes.STABILIZE -> {
+                flightMode = FlightModes.ALTOHOLD
                 flightModeSelector!!.text = "Flight mode:\nALTHOLD"
             }
-            flightModes.ALTOHOLD -> {
-                flightMode = flightModes.LOITER
+            FlightModes.ALTOHOLD -> {
+                flightMode = FlightModes.LOITER
                 flightModeSelector!!.text = "Flight mode:\nLOITER"
             }
-            flightModes.LOITER -> {
-                flightMode = flightModes.ACRO
+            FlightModes.LOITER -> {
+                flightMode = FlightModes.ACRO
                 flightModeSelector!!.text = "Flight mode:\nACRO"
             }
+            FlightModes.ACRO -> {
+                flightMode = FlightModes.LAND
+                flightModeSelector!!.text = "Flight mode:\nLAND"
+            }
+            FlightModes.LAND -> {
+                flightMode = FlightModes.RTL
+                flightModeSelector!!.text = "Flight mode:\nRTL"
+            }
             else -> {
-                flightMode = flightModes.STABILIZE
+                flightMode = FlightModes.STABILIZE
                 flightModeSelector!!.text = "Flight mode:\nSTABILIZE"
             }
         }
@@ -352,9 +390,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                     KeyEvent.KEYCODE_BUTTON_Y -> {
                         Toast.makeText(context, "Regaining control...", Toast.LENGTH_SHORT).show()
                         launch{
-                            flightMode = flightModes.LOITER
+                            flightMode = FlightModes.LOITER
                             delay(500)
-                            flightMode = flightModes.STABILIZE
+                            flightMode = FlightModes.STABILIZE
                             flightModeSelector?.text = "Flight Mode:\nStabilize"
                         }
                     }
@@ -517,17 +555,20 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         yaw?.progress = scaleAndOffset(joystickData.yaw, 200f, 1000f)/10
         roll?.progress = scaleAndOffset(joystickData.roll, 200f, 1000f)/10
         pitch?.progress = scaleAndOffset(joystickData.pitch, 200f, 1000f)/10
-
+        var ch7State: Char = if(ch7Button!!.isChecked) '1' else '0'
+        var ch8State: Char = if(ch8Button!!.isChecked) '1' else '0'
         val string: String =
-            "${scaleAndOffset(joystickData.throttle, 200f, 1000f)}"
-                .padStart(4, '0') +
+                    "${scaleAndOffset(joystickData.throttle, 200f, 1000f)}"
+                        .padStart(4, '0') +
                     "${scaleAndOffset(joystickData.yaw, 200f, 1000f)}"
                         .padStart(4, '0') +
                     "${scaleAndOffset(joystickData.roll, 200f, 1000f)}"
                         .padStart(4, '0') +
                     "${1000-scaleAndOffset(joystickData.pitch, 200f, 1000f)}"
                         .padStart(4, '0') +
-                    flightMode +
+                    "${flightMode.mode}" +
+                    "$ch7State" +
+                    "$ch8State" +
                     "?"
 
         if(connected) {
@@ -592,59 +633,60 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun onMessageSent(message: String) {}
 
     private fun onMessageReceived(message: String) {
-        Log.i(TAG, "Received: $message")
+        Log.d(TAG, "Received: $message")
         if(message.last() == '?'){
-            dataReceived?.text = dataReceived?.text.toString() + "\n" + message.substring(startIndex = 0, endIndex = message.length-2) + "s"
-        }
-        else{
-            dataReceived?.text = message
-        }
-        val text = dataReceived?.text
-        try {
-            if(text!!.indexOf("radio") > -1){
-                    if (alarm?.isPlaying == false) {
-                        alarm?.start()
+            incomingBuffer += "|" + message.substring(startIndex = 0, endIndex = message.length-1)
+            Log.i(TAG,"Incoming buffer: $incomingBuffer")
+            try {
+                val splits = incomingBuffer.split('|')
+                Log.i(TAG, "Incoming splits $splits")
+                if(splits.size == 3){
+                    dataRadioRate?.text = splits[2]
+                    radioRateProgress?.progress = constrain(splits[2].toFloat()/50 * 100, 0f, 100f).toInt()
+                    dataRadioLastResponse?.text = splits[1]
+                    dataRadioQuality?.text = splits[0]
+                    radioQualityProgress?.progress = splits[0].toInt()
+                    if(splits[2].toFloat() < 25 || splits[1].toFloat() > 0.5 || splits[0].toFloat() < 50){
+                        if(audio!!.isChecked) {
+                            if (alarm?.isPlaying == false) {
+                                alarm?.start()
+                            }
+                        }
+                        connect?.setBackgroundColor(Color.rgb(255, 165, 0))
                     }
-                Log.e(TAG, "No response from radio!")
-            }
-            else{
-
-                val index = text.indexOf("Last")
-                if (index > -1) {
-                    val timeString = text.substring(
-                        startIndex = index + 15,
-                        endIndex = text.length - 1
-                    )
-                    Log.i(TAG, "Last response calcs $timeString")
-                    val time = timeString.toFloat()
-                    Log.e(TAG, "Response time $time")
-                    if (time > 1.5) {
-                        if(alarm?.isPlaying == false){
-                            alarm?.start()
-                        }
-                    } else {
-                        if(alarm?.isPlaying == true){
-                            alarm?.pause()
-                        }
+                    else{
+                        connect?.setBackgroundColor(Color.GREEN)
                     }
                 }
             }
+            catch (e:Exception){}
+            incomingBuffer = ""
         }
-        catch (e:Exception){}
+        else{
+            incomingBuffer = if(incomingBuffer == ""){
+                message
+            } else {
+                "$incomingBuffer|$message"
+            }
+        }
     }
 
     private fun onError(error: Throwable) {
         error.message?.let { Log.e(TAG, it) }
         connect!!.setBackgroundColor(Color.RED)
-        dataReceived?.text = ""
+
         try {
             bluetoothManager?.close()
             bluetoothManager = BluetoothManager.getInstance()
-            Toast.makeText(context, "BT down, trying to connected.", Toast.LENGTH_LONG).show()
-            if(alarm?.isPlaying == false){
-                alarm?.start()
+            if(audio!!.isChecked) {
+                if (alarm?.isPlaying == false) {
+                    alarm?.start()
+                }
             }
-            connectDevice(device)
+            if(autoReconnect?.isChecked == true) {
+                Toast.makeText(context, "BT down, trying to connected.", Toast.LENGTH_LONG).show()
+                connectDevice(device)
+            }
         }
         catch (e: Exception){}
     }
